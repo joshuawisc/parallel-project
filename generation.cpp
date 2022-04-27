@@ -6,7 +6,7 @@
 using namespace std;
 
 
-// update the input string by one iteration
+// update the input string by one iteration by applying rules
 string update(string input, string(*rules)(char)) {
   string output;
   for (char c : input) {
@@ -18,7 +18,9 @@ string update(string input, string(*rules)(char)) {
 
 
 // generate l-system of depth d
-void generate(string axiom, int d, string(*rules)(char)) {
+// starting from axiom and applying rules
+// print result to stdout
+void generate(string axiom, string(*rules)(char), int d) {
   string current = axiom;
 
   cout << current << endl << endl;
@@ -28,9 +30,14 @@ void generate(string axiom, int d, string(*rules)(char)) {
   }
 }
 
+/*
+  Just set the axiom and rules to determine the l-system
+*/
 
 int main() {
+  // axiom
   string KochCurveAxiom = {'F'};
+  // rules
   string (*KochCurveRules)(char) = [](char c) {
     if (c == 'F') {
       return string("F+F-F-F+F");
@@ -39,5 +46,6 @@ int main() {
     }
   };
 
-  generate(KochCurveAxiom, 3, KochCurveRules);
+  // generate l-system
+  generate(KochCurveAxiom, KochCurveRules, 3);
 }
