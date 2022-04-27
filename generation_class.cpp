@@ -91,6 +91,32 @@ public:
 
 
 int main() {
-  KochCurve k = KochCurve();
-  cout << k.generate(4) << endl;
+  KochCurve L = KochCurve();
+  string instructions = L.generate(3);
+  cout << instructions << endl;
+
+  // draw
+  float rotation = 80;
+  float line_length = 10;
+
+  float x = 0, y = 0; // initial position
+  float angle = 0; // initial angle
+  
+  // draw loop
+  for (char c : instructions) {
+    if (c == 'F') {
+      float new_x = line_length * cos(angle);
+      float new_y = line_length * sin(angle);
+      // TODO: draw line from (x, y) to (new_x, new_y)
+      x = new_x, y = new_y;
+    } else if (c == '+') {
+      angle += rotation;
+    } else if (c == '-') {
+      angle -= rotation;
+    } else if (c == '[') {
+      // TODO: save current position and angle
+    } else if (c == ']') {
+      // TODO: restore current position and angle
+    }
+  }
 }
