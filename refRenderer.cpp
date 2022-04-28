@@ -135,9 +135,74 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
     pixelData[3] += alpha;
 }
 
+void drawTree(LSystem ls) {
+
+    // draw loop
+    float angle = ls.angle;
+    for (char c : instructions) {
+        if (c == 'F') {
+            float new_x = ls.line_length * cos(angle);
+            float new_y = ls.line_length * sin(angle);
+            drawLine(x0, y0, x1, y1); 
+            // TODO: draw line from (x, y) to (new_x, new_y)
+            x = new_x, y = new_y;
+        } else if (c == '+') {
+            angle += ls.rotation;
+        } else if (c == '-') {
+            angle -= ls.rotation;
+        } else if (c == '[') {
+            // TODO: save current position and angle
+        } else if (c == ']') {
+            // TODO: restore current position and angle
+        }
+    }
+}
+
+void drawLine(x0, y0, x1, y1, LSystem ls) {
+    int x1 = CLAMP(static_cast<int>(x1 * image->width), 0, image->width);
+    int y1 = CLAMP(static_cast<int>(y1 * image->height), 0, image->height);
+    int x0 = CLAMP(static_cast<int>(x0 * image->width), 0, image->width);
+    int y0 = CLAMP(static_cast<int>(y0 * image->height), 0, image->height);
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
+    int error = dx + dy;
+    int e2;
+
+    while (true) {
+        // plot(x0, y0);
+        float *imgPtr = &image->data[4 * (y0 * image->width + x0)];
+        imgPtr[0] = ls.color[0];
+        imgPtr[1] = ls.color[1];
+        imgPtr[2] = ls.color[2];
+        imgPtr[3] = 1;
+
+        if (x0 == x1 && y0 == y1)
+            break;
+        e2 = 2 * error;
+        if (e2 >= dy) {
+            if (x0 == x1)
+                break;
+            error = error + dy;
+            x0 = x0 + sx;
+        }
+        if (e2 <= dx) {
+            if (y0 == y1)
+                break;
+            error = error + dx;
+            y0 = y0 + sy;
+        }
+    }
+
+
+}
+
 void RefRenderer::render() {
     // Render all circles
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
+
+        drawTree(trees[treeIndex]);
 
         int index3 = 3 * treeIndex;
 

@@ -2,7 +2,7 @@ EXECUTABLE := render
 LDFLAGS=-L/usr/local/depot/cuda-10.2/lib64/ -lcudart
 # CU_FILES   := cudaRenderer.cu
 CU_DEPS    :=
-CC_FILES   := main.cpp display.cpp refRenderer.cpp
+CC_FILES   := main.cpp display.cpp refRenderer.cpp generation_class.cpp
 LOGS	   := logs
 
 all: $(EXECUTABLE)
