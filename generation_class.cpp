@@ -7,10 +7,11 @@
 
 using namespace std;
 
-class LSystemGenerator {
+class LSystem {
 private:
   string axiom;
   unordered_map<char, string> rules;
+  float rotation;
 
   string update(string input) {
     string output;
@@ -62,9 +63,25 @@ private:
   }
 
 public:
-  LSystemGenerator(string axiom, unordered_map<char, string> rules) {
+  float x;
+  float y;
+  float angle;
+  float length;
+  float color[3];
+
+  // axiom, rules, and rotation determine the L-System
+  // x, y, and angle determine the starting position and angle
+  LSystem(string axiom, unordered_map<char, string> rules, float rotation, float x, float y, float angle, float length, float color[3]) {
     this->axiom = axiom;
     this->rules = rules;
+    this->rotation = rotation;
+    this->x = x;
+    this->y = y;
+    this->angle = angle;
+    this->length = length;
+    this->color[0] = color[0];
+    this->color[1] = color[1];
+    this->color[2] = color[2];
   }
 
   string generate(int d) {
@@ -77,30 +94,33 @@ public:
   }
 };
 
-class KochCurve : public LSystemGenerator {
+class KochCurve : public LSystem {
 public:
-  KochCurve() : LSystemGenerator(
+  KochCurve(float x, float y, float angle, float length, float color[3]) : LSystem(
     // axiom
     "F",
     // rules
     {
       {'F', "F+F-F-F+F"}
-    }
+    },
+    // rotation
+    80,
+    x, y, angle, length, color
   ) {}
 };
 
 
 int main() {
-  KochCurve L = KochCurve();
-  string instructions = L.generate(3);
-  cout << instructions << endl;
-
   // draw
   float rotation = 80;
   float line_length = 10;
 
   float x = 0, y = 0; // initial position
   float angle = 0; // initial angle
+
+  KochCurve L = KochCurve(x, y, angle);
+  string instructions = L.generate(3);
+  cout << instructions << endl;
   
   // draw loop
   for (char c : instructions) {
