@@ -45,28 +45,33 @@ int main(int argc, char **argv) {
 
     RefRenderer *renderer;
 
-    int numberOfTrees = 1330000;
+    int numberOfTrees = 1;
+    LSystem trees[numberOfTrees];
+
+    
+
 
     float* position = new float[3*numberOfTrees];
     float* color = new float[3*numberOfTrees];
 
     for (int i = 0; i < numberOfTrees ; i++) {
-        int index3 = 3 * i;
+        float rotation = 80;
+        float length = 10;
 
-        position[index3] = randomFloat();
-        position[index3 + 1] = randomFloat();
-        position[index3 + 2] = randomFloat();
-
-        color[index3] = randomFloat();
-        color[index3 + 1] = randomFloat();
-        color[index3 + 2] = randomFloat();
+        float x = 0, y = 0; // initial position
+        float angle = 0; // initial angle
+        float colors[3] = {1.0, 1.0, 1.0};
+        KochCurve L(x, y, angle, 1.0, colors);
+        string instructions = L.generate(3);
+        cout << instructions << endl;
+        trees[i] = L;
     }
 
 
     renderer = new RefRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
-    renderer->loadTrees(position, color, numberOfTrees);
+    renderer->loadTrees(trees, numberOfTrees);
     renderer->setup();
 
     glutInit(&argc, argv);

@@ -14,6 +14,7 @@ RefRenderer::RefRenderer() {
     numberOfTrees = 0;
     position = NULL;
     color = NULL;
+    trees = NULL;
 }
 
 RefRenderer::~RefRenderer() {
@@ -51,9 +52,8 @@ void RefRenderer::clearImage() {
     image->clear(1.f, 1.f, 1.f, 1.f);
 }
 
-void RefRenderer::loadTrees(float* position, float* color, int numberOfTrees) {
-    this->position = position;
-    this->color = color;
+void RefRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
+    this->trees = trees;
     this->numberOfTrees = numberOfTrees;
 }
 
@@ -135,34 +135,11 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
     pixelData[3] += alpha;
 }
 
-void drawTree(LSystem ls) {
-
-    // draw loop
-    float angle = ls.angle;
-    for (char c : instructions) {
-        if (c == 'F') {
-            float new_x = ls.line_length * cos(angle);
-            float new_y = ls.line_length * sin(angle);
-            drawLine(x0, y0, x1, y1); 
-            // TODO: draw line from (x, y) to (new_x, new_y)
-            x = new_x, y = new_y;
-        } else if (c == '+') {
-            angle += ls.rotation;
-        } else if (c == '-') {
-            angle -= ls.rotation;
-        } else if (c == '[') {
-            // TODO: save current position and angle
-        } else if (c == ']') {
-            // TODO: restore current position and angle
-        }
-    }
-}
-
-void drawLine(x0, y0, x1, y1, LSystem ls) {
-    int x1 = CLAMP(static_cast<int>(x1 * image->width), 0, image->width);
-    int y1 = CLAMP(static_cast<int>(y1 * image->height), 0, image->height);
-    int x0 = CLAMP(static_cast<int>(x0 * image->width), 0, image->width);
-    int y0 = CLAMP(static_cast<int>(y0 * image->height), 0, image->height);
+void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
+    x1 = CLAMP(static_cast<int>(x1 * this->image->width), 0, this->image->width);
+    y1 = CLAMP(static_cast<int>(y1 * this->image->height), 0, this->image->height);
+    x0 = CLAMP(static_cast<int>(x0 * this->image->width), 0, this->image->width);
+    y0 = CLAMP(static_cast<int>(y0 * this->image->height), 0, this->image->height);
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0);
@@ -172,7 +149,7 @@ void drawLine(x0, y0, x1, y1, LSystem ls) {
 
     while (true) {
         // plot(x0, y0);
-        float *imgPtr = &image->data[4 * (y0 * image->width + x0)];
+        float *imgPtr = &image->data[4 * (int(y0) * image->width + int(x0))];
         imgPtr[0] = ls.color[0];
         imgPtr[1] = ls.color[1];
         imgPtr[2] = ls.color[2];
@@ -194,9 +171,34 @@ void drawLine(x0, y0, x1, y1, LSystem ls) {
             y0 = y0 + sy;
         }
     }
-
-
 }
+
+void RefRenderer::drawTree(LSystem ls) {
+
+    // draw loop
+    float angle = ls.angle;
+    float x = 0;
+    float y = 0;
+    // TODO: set x,y from lsystem
+    for (char c : ls.instructions) {
+        if (c == 'F') {
+            float new_x = ls.length * cos(angle);
+            float new_y = ls.length * sin(angle);
+            drawLine(x, y, new_x, new_y, ls); 
+            x = new_x, y = new_y;
+        } else if (c == '+') {
+            angle += ls.rotation;
+        } else if (c == '-') {
+            angle -= ls.rotation;
+        } else if (c == '[') {
+            // TODO: save current position and angle
+        } else if (c == ']') {
+            // TODO: restore current position and angle
+        }
+    }
+}
+
+
 
 void RefRenderer::render() {
     // Render all circles

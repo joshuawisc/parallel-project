@@ -11,7 +11,6 @@ class LSystem {
 private:
   string axiom;
   unordered_map<char, string> rules;
-  float rotation;
 
   string update(string input) {
     string output;
@@ -41,7 +40,8 @@ private:
     // TODO: get prefix sum of output lengths
     vector<int> output_sums(input.size());
     // inclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin());
-    exclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin(), 0);
+    // TODO: ESCLUSIVE SCAN
+    // std::exclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin(), 0);
 
     // TODO: for each character, write new string into output
     int output_size = output_sums.back() + output_sizes.back();
@@ -68,6 +68,12 @@ public:
   float angle;
   float length;
   float color[3];
+  float rotation;
+  string instructions;
+
+  LSystem() {
+    
+  }
 
   // axiom, rules, and rotation determine the L-System
   // x, y, and angle determine the starting position and angle
@@ -90,6 +96,7 @@ public:
       current = this->update(current);
       // current = this->update_par(current);
     }
+    this->instructions = current;
     return current;
   }
 };
@@ -109,7 +116,7 @@ public:
   ) {}
 };
 
-
+/**
 int main() {
   // draw
   float rotation = 80;
@@ -117,8 +124,8 @@ int main() {
 
   float x = 0, y = 0; // initial position
   float angle = 0; // initial angle
-
-  KochCurve L = KochCurve(x, y, angle);
+  float colors[3] = {1.0, 1.0, 1.0};
+  KochCurve L(x, y, angle, 1.0, colors);
   string instructions = L.generate(3);
   cout << instructions << endl;
   
@@ -140,3 +147,4 @@ int main() {
     }
   }
 }
+**/
