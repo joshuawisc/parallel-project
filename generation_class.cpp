@@ -111,7 +111,23 @@ public:
       {'F', "F+F-F-F+F"}
     },
     // rotation
-    80,
+    90,
+    x, y, angle, length, color
+  ) {}
+};
+
+class Fern : public LSystem {
+public:
+  Fern(float x, float y, float angle, float length, float color[3]) : LSystem(
+    // axiom
+    "X",
+    // rules
+    {
+      {'X', "F-[[X]+X]+F[+FX]-X"},
+      {'F', "FF"}
+    },
+    // rotation
+    90,
     x, y, angle, length, color
   ) {}
 };

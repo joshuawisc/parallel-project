@@ -180,6 +180,7 @@ void RefRenderer::drawTree(LSystem ls) {
     float angle = ls.angle;
     float x = ls.x;
     float y = ls.y;
+    float x_old, y_old, angle_old;
     for (char c : ls.instructions) {
         if (c == 'F') {
             float new_x = x + ls.length * cos(angle);
@@ -192,8 +193,14 @@ void RefRenderer::drawTree(LSystem ls) {
             angle -= ls.rotation;
         } else if (c == '[') {
             // TODO: save current position and angle
+            x_old = x;
+            y_old = y;
+            angle_old = angle;
         } else if (c == ']') {
             // TODO: restore current position and angle
+            x = x_old;
+            y = y_old;
+            angle = angle_old;
         }
     }
 }

@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 0; // initial angle
         float colors[3] = {randomFloat(), randomFloat(), randomFloat()};
-        KochCurve L(x, y, angle, length, colors);
+        Fern L(x, y, angle, length, colors);
         string instructions = L.generate(3);
         cout << instructions << endl;
         trees[i] = L;
