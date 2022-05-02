@@ -137,7 +137,7 @@ void startRendererWithDisplay(RefRenderer *renderer) {
     gDisplay.renderer = renderer;
     gDisplay.updateSim = true;
     gDisplay.pauseSim = false;
-    gDisplay.printStats = true;
+    gDisplay.printStats = false;
     gDisplay.lastFrameTime = CycleTimer::currentSeconds();
     gDisplay.width = img->width;
     gDisplay.height = img->height;

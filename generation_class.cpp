@@ -28,6 +28,7 @@ private:
 
   string update_par(string input) {
     // TODO: compute new length of each char
+    // Extra comments
     vector<int> output_sizes(input.size());
     for (int i = 0; i < input.size(); i++) {
       if (rules.find(input[i]) != rules.end()) {

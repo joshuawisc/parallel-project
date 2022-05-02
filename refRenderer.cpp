@@ -136,6 +136,7 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
 }
 
 void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
+    // Can't do (1.0)??
     x1 = CLAMP(static_cast<int>(x1 * this->image->width), 0, this->image->width);
     y1 = CLAMP(static_cast<int>(y1 * this->image->height), 0, this->image->height);
     x0 = CLAMP(static_cast<int>(x0 * this->image->width), 0, this->image->width);
@@ -177,14 +178,13 @@ void RefRenderer::drawTree(LSystem ls) {
 
     // draw loop
     float angle = ls.angle;
-    float x = 0;
-    float y = 0;
-    // TODO: set x,y from lsystem
+    float x = ls.x;
+    float y = ls.y;
     for (char c : ls.instructions) {
         if (c == 'F') {
-            float new_x = ls.length * cos(angle);
-            float new_y = ls.length * sin(angle);
-            drawLine(x, y, new_x, new_y, ls); 
+            float new_x = x + ls.length * cos(angle);
+            float new_y = y + ls.length * sin(angle);
+            drawLine(x, y, new_x, new_y, ls);
             x = new_x, y = new_y;
         } else if (c == '+') {
             angle += ls.rotation;
@@ -205,7 +205,7 @@ void RefRenderer::render() {
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
         drawTree(trees[treeIndex]);
-
+        /**
         int index3 = 3 * treeIndex;
 
         float px = position[index3];
@@ -238,51 +238,8 @@ void RefRenderer::render() {
         imgPtr[1] = colG;
         imgPtr[2] = colB;
         imgPtr[3] = 1;
-
-        continue;
+        **/
     }
 
     return;
-
-
-    // UNUSED
-    /*
-    for (int pixelY = screenMinY; pixelY < screenMaxY; pixelY++) {
-
-        // pointer to pixel data
-        float *imgPtr = &image->data[4 * (pixelY * image->width + screenMinX)];
-
-        for (int pixelX = screenMinX; pixelX < screenMaxX; pixelX++) {
-
-            // When "shading" the pixel ("shading" = computing the
-            // circle's color and opacity at the pixel), we treat
-            // the pixel as a point at the center of the pixel.
-            // We'll compute the color of the circle at this
-            // point.  Note that shading math will occur in the
-            // normalized [0,1]^2 coordinate space, so we convert
-            // the pixel center into this coordinate space prior
-            // to calling shadePixel.
-            float pixelCenterNormX = invWidth * (static_cast<float>(pixelX) + 0.5f);
-            float pixelCenterNormY = invHeight * (static_cast<float>(pixelY) + 0.5f);
-            shadePixel(pixelCenterNormX, pixelCenterNormY, px, py, pz, imgPtr, treeIndex);
-            imgPtr += 4;
-        }
-    }
-    */
 }
-
-/*
-void RefRenderer::dumpParticles(const char *filename) {
-
-    FILE *output = fopen(filename, "w");
-
-    fprintf(output, "%d\n", numberOfTrees);
-    for (int i = 0; i < numberOfTrees; i++) {
-        fprintf(output, "%f %f %f   %f %f %f   %f\n",
-            position[3 * i + 0], position[3 * i + 1], position[3 * i + 2],
-            velocity[3 * i + 0], velocity[3 * i + 1], velocity[3 * i + 2],
-            radius[i]);
-    }
-    fclose(output);
-}
-*/
