@@ -137,10 +137,10 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
 
 void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
     // Can't do (1.0)??
-    x1 = CLAMP(static_cast<int>(x1 * this->image->width), 0, this->image->width);
-    y1 = CLAMP(static_cast<int>(y1 * this->image->height), 0, this->image->height);
-    x0 = CLAMP(static_cast<int>(x0 * this->image->width), 0, this->image->width);
-    y0 = CLAMP(static_cast<int>(y0 * this->image->height), 0, this->image->height);
+    x1 = CLAMP(static_cast<int>(x1 * this->image->width)-1, 0, this->image->width-1);
+    y1 = CLAMP(static_cast<int>(y1 * this->image->height)-1, 0, this->image->height-1);
+    x0 = CLAMP(static_cast<int>(x0 * this->image->width)-1, 0, this->image->width-1);
+    y0 = CLAMP(static_cast<int>(y0 * this->image->height)-1, 0, this->image->height-1);
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0);

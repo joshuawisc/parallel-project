@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
     RefRenderer *renderer;
 
-    int numberOfTrees = 1000;
+    int numberOfTrees = 500;
     LSystem trees[numberOfTrees];
 
     for (int i = 0; i < numberOfTrees ; i++) {
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 0; // initial angle
-        float colors[3] = {randomFloat(), randomFloat(), randomFloat()};
+        float colors[3] = {1.0, randomFloat(), randomFloat()*0.5};
         KochCurve L(x, y, angle, length, colors);
         string instructions = L.generate(3);
         cout << instructions << endl;
