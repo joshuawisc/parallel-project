@@ -7,13 +7,10 @@
 
 using namespace std;
 
-float WHITE[3] = {1.0f ,1.0f ,1.0f};
-
 class LSystem {
 private:
   string axiom;
   unordered_map<char, string> rules;
-  float rotation;
 
   string update(string input) {
     string output;
@@ -31,7 +28,6 @@ private:
 
   string update_par(string input) {
     // TODO: compute new length of each char
-    // Extra comments
     vector<int> output_sizes(input.size());
     for (int i = 0; i < input.size(); i++) {
       if (rules.find(input[i]) != rules.end()) {
@@ -44,7 +40,8 @@ private:
     // TODO: get prefix sum of output lengths
     vector<int> output_sums(input.size());
     // inclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin());
-    exclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin(), 0);
+    // TODO: ESCLUSIVE SCAN
+    // std::exclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin(), 0);
 
     // TODO: for each character, write new string into output
     int output_size = output_sums.back() + output_sizes.back();
@@ -71,11 +68,16 @@ public:
   float angle;
   float length;
   float color[3];
+  float rotation;
+  string instructions;
+
+  LSystem() {
+    
+  }
 
   // axiom, rules, and rotation determine the L-System
   // x, y, and angle determine the starting position and angle
-  LSystem(string axiom, unordered_map<char, string> rules, float rotation,
-          float x = 0, float y = 0, float angle = 0, float length = 1, float color[3] = WHITE) {
+  LSystem(string axiom, unordered_map<char, string> rules, float rotation, float x, float y, float angle, float length, float color[3]) {
     this->axiom = axiom;
     this->rules = rules;
     this->rotation = rotation;
@@ -94,16 +96,14 @@ public:
       current = this->update(current);
       // current = this->update_par(current);
     }
+    this->instructions = current;
     return current;
   }
 };
 
-/*
-  Specific L-Systems
-*/
 class KochCurve : public LSystem {
 public:
-  KochCurve(float x, float y, float angle, float length = 1, float color[3] = WHITE) : LSystem(
+  KochCurve(float x, float y, float angle, float length, float color[3]) : LSystem(
     // axiom
     "F",
     // rules
@@ -116,23 +116,7 @@ public:
   ) {}
 };
 
-class Fern : public LSystem {
-public:
-  Fern(float x, float y, float angle, float length = 1, float color[3] = WHITE) : LSystem(
-    // axiom
-    "X",
-    // rules
-    {
-      {'X', "F+[[X]-X]-F[-FX]+X"},
-      {'F', "FF"}
-    },
-    // rotation
-    25,
-    x, y, angle, length, color
-  ) {}
-};
-
-
+/**
 int main() {
   // draw
   float rotation = 80;
@@ -140,16 +124,16 @@ int main() {
 
   float x = 0, y = 0; // initial position
   float angle = 0; // initial angle
-
-  KochCurve L = KochCurve(x, y, angle);
+  float colors[3] = {1.0, 1.0, 1.0};
+  KochCurve L(x, y, angle, 1.0, colors);
   string instructions = L.generate(3);
   cout << instructions << endl;
   
   // draw loop
   for (char c : instructions) {
     if (c == 'F') {
-      float new_x = x + line_length * cos(angle);
-      float new_y = y + line_length * sin(angle);
+      float new_x = line_length * cos(angle);
+      float new_y = line_length * sin(angle);
       // TODO: draw line from (x, y) to (new_x, new_y)
       x = new_x, y = new_y;
     } else if (c == '+') {
@@ -163,3 +147,4 @@ int main() {
     }
   }
 }
+**/
