@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <vector>
+#include <stack>
 
 #include "image.h"
 #include "refRenderer.h"
@@ -180,6 +181,9 @@ void RefRenderer::drawTree(LSystem ls) {
     float angle = ls.angle;
     float x = ls.x;
     float y = ls.y;
+    stack<float> stack_x;
+    stack<float> stack_y;
+    stack<float> stack_angle;
     for (char c : ls.instructions) {
         if (c == 'F') {
             float new_x = x + ls.length * cos(angle);
@@ -192,8 +196,17 @@ void RefRenderer::drawTree(LSystem ls) {
             angle -= ls.rotation;
         } else if (c == '[') {
             // TODO: save current position and angle
+            stack_x.push(x);
+            stack_y.push(y);
+            stack_angle.push(angle);
         } else if (c == ']') {
             // TODO: restore current position and angle
+            x = stack_x.top();
+            y = stack_y.top();
+            angle = stack_angle.top();
+            stack_x.pop();
+            stack_y.pop();
+            stack_angle.pop();
         }
     }
 }
