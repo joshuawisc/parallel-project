@@ -127,7 +127,7 @@ public:
       {'F', "FF"}
     },
     // rotation
-    90,
+    0.436,
     x, y, angle, length, color
   ) {}
 };

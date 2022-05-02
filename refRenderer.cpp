@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <vector>
+#include <stack>
 
 #include "image.h"
 #include "refRenderer.h"
@@ -137,10 +138,10 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
 
 void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
     // Can't do (1.0)??
-    x1 = CLAMP(static_cast<int>(x1 * this->image->width), 0, this->image->width);
-    y1 = CLAMP(static_cast<int>(y1 * this->image->height), 0, this->image->height);
-    x0 = CLAMP(static_cast<int>(x0 * this->image->width), 0, this->image->width);
-    y0 = CLAMP(static_cast<int>(y0 * this->image->height), 0, this->image->height);
+    x1 = CLAMP(static_cast<int>(x1 * this->image->width)-1, 0, this->image->width-1);
+    y1 = CLAMP(static_cast<int>(y1 * this->image->height)-1, 0, this->image->height-1);
+    x0 = CLAMP(static_cast<int>(x0 * this->image->width)-1, 0, this->image->width-1);
+    y0 = CLAMP(static_cast<int>(y0 * this->image->height)-1, 0, this->image->height-1);
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0);
@@ -180,7 +181,9 @@ void RefRenderer::drawTree(LSystem ls) {
     float angle = ls.angle;
     float x = ls.x;
     float y = ls.y;
-    float x_old, y_old, angle_old;
+    stack<float> stack_x;
+    stack<float> stack_y;
+    stack<float> stack_angle;
     for (char c : ls.instructions) {
         if (c == 'F') {
             float new_x = x + ls.length * cos(angle);
@@ -193,14 +196,17 @@ void RefRenderer::drawTree(LSystem ls) {
             angle -= ls.rotation;
         } else if (c == '[') {
             // TODO: save current position and angle
-            x_old = x;
-            y_old = y;
-            angle_old = angle;
+            stack_x.push(x);
+            stack_y.push(y);
+            stack_angle.push(angle);
         } else if (c == ']') {
             // TODO: restore current position and angle
-            x = x_old;
-            y = y_old;
-            angle = angle_old;
+            x = stack_x.top();
+            y = stack_y.top();
+            angle = stack_angle.top();
+            stack_x.pop();
+            stack_y.pop();
+            stack_angle.pop();
         }
     }
 }
