@@ -155,5 +155,5 @@ void startRendererWithDisplay(RefRenderer *renderer) {
     gDisplay.renderer->clearImage();
     gDisplay.renderer->render();
     printf("Render:   %.3f ms\n", 1000.f * (CycleTimer::currentSeconds() - preRenderTime));
-    glutMainLoop();
+    // glutMainLoop();
 }

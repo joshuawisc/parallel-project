@@ -45,16 +45,33 @@ int main(int argc, char **argv) {
     printf("Rendering to %dx%d image\n", imageSize, imageSize);
 
     RefRenderer *renderer;
-    
     int numberOfTrees = 20000;
+    int threads = 8;
+    int depth = 5;
+    float length = .01;
+    
+    // Set args
+    int opt;
+    while((opt = getopt(argc, argv,"t:d:l:n:")) != EOF) {
+        switch(opt) {
+            case 't':
+                numberOfTrees = atoi(optarg);
+                break;
+            case 'd':
+                depth = atoi(optarg);
+                break;
+            case 'l':
+                length = atoi(optarg);
+                break;
+            case 'n':
+                threads = atoi(optarg);
+        } 
+    }
+
     LSystem trees[numberOfTrees];
 
-    int threads = 8;
-
     double preGenerate = CycleTimer::currentSeconds();
-    int depth = 5;
-    for (int i = 0; i < numberOfTrees ; i+=2) {
-        float length = .3;
+    for (int i = 0; i < numberOfTrees ; i++) {
 
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 3.14/2; // initial angle
@@ -65,13 +82,13 @@ int main(int argc, char **argv) {
     }
     double endGenerate = CycleTimer::currentSeconds();
 
-    printf("Create %d trees with depth %d in %.3f ms\n", numberOfTrees, depth, 1000.f * (endGenerate - preGenerate));
+    printf("Create %d trees with depth %d, length %.3f in %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
 
     renderer = new RefRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);
-    renderer->setup();
+    renderer->setup(threads);
 
     glutInit(&argc, argv);
     startRendererWithDisplay(renderer);

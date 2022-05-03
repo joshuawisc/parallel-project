@@ -21,7 +21,7 @@ class RefRenderer {
 
     const Image *getImage();
 
-    void setup();
+    void setup(int threads);
 
     void loadTrees(LSystem *trees, int numberOfTrees);
 

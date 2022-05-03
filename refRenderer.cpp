@@ -35,9 +35,7 @@ RefRenderer::~RefRenderer() {
 
 const Image *RefRenderer::getImage() { return image; }
 
-void RefRenderer::setup() {
-    // nothing to do here
-    int threads = 1;
+void RefRenderer::setup(int threads) {
     omp_set_num_threads(threads);
     printf("Using %d threads\n", threads);
 }
@@ -228,6 +226,7 @@ void RefRenderer::render() {
 
         drawTree(trees[treeIndex]);
     }
+    printf("Render complete\n");
 
     return;
 }
