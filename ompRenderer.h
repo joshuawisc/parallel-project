@@ -1,12 +1,9 @@
-#ifndef __REF_RENDERER_H__
-#define __REF_RENDERER_H__
+#ifndef __OMP_RENDERER_H__
+#define __OMP_RENDERER_H__
 
-#include "generation_class.cpp"
+#include "treeRenderer.h"
 
-
-struct Image;
-
-class RefRenderer {
+class OmpRenderer : public TreeRenderer{
   private:
     Image *image;
 
@@ -16,8 +13,8 @@ class RefRenderer {
     LSystem *trees;
 
   public:
-    RefRenderer();
-    virtual ~RefRenderer();
+    OmpRenderer();
+    virtual ~OmpRenderer();
 
     const Image *getImage();
 

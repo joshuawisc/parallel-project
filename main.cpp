@@ -4,7 +4,7 @@
 #include <string>
 
 #include "platformgl.h"
-#include "refRenderer.h"
+#include "ompRenderer.h"
 #include "cycleTimer.h"
 
 // randomFloat --
@@ -13,11 +13,11 @@
 static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
 
 
-void startRendererWithDisplay(RefRenderer *renderer);
+void startRendererWithDisplay(TreeRenderer *renderer);
 /*
-void startBenchmark(RefRenderer *renderer, int startFrame, int totalFrames,
+void startBenchmark(OmpRenderer *renderer, int startFrame, int totalFrames,
                     const std::string &frameFilename);
-void checkBenchmark(RefRenderer *ref_renderer, RefRenderer *cuda_renderer,
+void checkBenchmark(OmpRenderer *ref_renderer, RefRenderer *cuda_renderer,
                     int benchmarkFrameStart, int totalFrames,
                     const std::string &frameFilename);
 */
@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
 
     printf("Rendering to %dx%d image\n", imageSize, imageSize);
 
-    RefRenderer *renderer;
-    int numberOfTrees = 20000;
+    TreeRenderer *renderer;
+    int numberOfTrees = 5000;
     int threads = 8;
     int depth = 5;
     float length = .01;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
 
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 3.14/2; // initial angle
-        float colors[3] = {randomFloat()*0. + 1, randomFloat()*1.0 + 0, randomFloat()*0.5 + 0};
+        float colors[3] = {randomFloat()*0.f + 1.0f, randomFloat()*1.0f + 0.0f, randomFloat()*0.5f + 0.0f};
         Fern L(x, y, angle, length/(1<<depth), colors);
         L.generate(depth);
         trees[i] = L;
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
     printf("Create %d trees with depth %d, length %.3f in %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
 
-    renderer = new RefRenderer();
+    renderer = new OmpRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);

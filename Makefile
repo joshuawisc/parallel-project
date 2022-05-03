@@ -2,7 +2,7 @@ EXECUTABLE := render
 LDFLAGS=-L/usr/local/depot/cuda-10.2/lib64/ -lcudart
 # CU_FILES   := cudaRenderer.cu
 CU_DEPS    :=
-CC_FILES   := main.cpp display.cpp refRenderer.cpp generation_class.cpp
+CC_FILES   := main.cpp display.cpp ompRenderer.cpp generation_class.cpp
 LOGS	   := logs
 
 all: $(EXECUTABLE)
@@ -26,7 +26,7 @@ LDFRAMEWORKS := $(addprefix -framework , $(FRAMEWORKS))
 
 NVCC=nvcc
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/display.o $(OBJDIR)/refRenderer.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/display.o $(OBJDIR)/ompRenderer.o
 
 
 .PHONY: dirs clean
