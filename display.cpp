@@ -88,6 +88,7 @@ void handleKeyPress(unsigned char key, int x, int y) {
         break;
     case 'p':
     case 'P':
+        printf("Pause\n");
         gDisplay.pauseSim = !gDisplay.pauseSim;
         if (!gDisplay.pauseSim)
             gDisplay.updateSim = true;
@@ -102,8 +103,6 @@ void renderPicture() {
 
     double startTime = CycleTimer::currentSeconds();
 
-    // Clear screen
-    gDisplay.renderer->clearImage();
 
     double endClearTime = CycleTimer::currentSeconds();
 
@@ -116,16 +115,19 @@ void renderPicture() {
 
     double endSimTime = CycleTimer::currentSeconds();
 
-    // Render the particles into the image
-    gDisplay.renderer->render();
-
-    double endRenderTime = CycleTimer::currentSeconds();
-
-    if (gDisplay.printStats) {
-        printf("Clear:    %.3f ms\n", 1000.f * (endClearTime - startTime));
-        printf("Advance:  %.3f ms\n", 1000.f * (endSimTime - endClearTime));
-        printf("Render:   %.3f ms\n", 1000.f * (endRenderTime - endSimTime));
+    if (!gDisplay.pauseSim) {
+        // Render the particles into the image
+        // Clear screen
+        gDisplay.renderer->clearImage();
+        gDisplay.renderer->render();
+        if (gDisplay.printStats) {
+            printf("Clear:    %.3f ms\n", 1000.f * (endClearTime - startTime));
+            printf("Advance:  %.3f ms\n", 1000.f * (endSimTime - endClearTime));
+            printf("Render:   %.3f ms\n", 1000.f * (CycleTimer::currentSeconds() - endSimTime));
+        }
     }
+
+
 }
 
 void startRendererWithDisplay(RefRenderer *renderer) {
@@ -136,7 +138,7 @@ void startRendererWithDisplay(RefRenderer *renderer) {
 
     gDisplay.renderer = renderer;
     gDisplay.updateSim = true;
-    gDisplay.pauseSim = false;
+    gDisplay.pauseSim = true;
     gDisplay.printStats = false;
     gDisplay.lastFrameTime = CycleTimer::currentSeconds();
     gDisplay.width = img->width;
@@ -149,5 +151,9 @@ void startRendererWithDisplay(RefRenderer *renderer) {
     glutCreateWindow("CMU 15-618 Parallel Project Trees");
     glutDisplayFunc(handleDisplay);
     glutKeyboardFunc(handleKeyPress);
+    double preRenderTime = CycleTimer::currentSeconds();
+    gDisplay.renderer->clearImage();
+    gDisplay.renderer->render();
+    printf("Render:   %.3f ms\n", 1000.f * (CycleTimer::currentSeconds() - preRenderTime));
     glutMainLoop();
 }

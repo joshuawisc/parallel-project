@@ -5,6 +5,7 @@
 
 #include "platformgl.h"
 #include "refRenderer.h"
+#include "cycleTimer.h"
 
 // randomFloat --
 // //
@@ -44,36 +45,36 @@ int main(int argc, char **argv) {
     printf("Rendering to %dx%d image\n", imageSize, imageSize);
 
     RefRenderer *renderer;
-
-    int numberOfTrees = 100;
+    
+    int numberOfTrees = 20000;
     LSystem trees[numberOfTrees];
 
-    for (int i = 0; i < numberOfTrees ; i++) {
-        float length = 0.1;
-        int depth = 5;
+    int threads = 8;
+
+    double preGenerate = CycleTimer::currentSeconds();
+    int depth = 5;
+    for (int i = 0; i < numberOfTrees ; i+=2) {
+        float length = .3;
 
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 3.14/2; // initial angle
-        float colors[3] = {1.0, randomFloat(), 0.0};
+        float colors[3] = {randomFloat()*0. + 1, randomFloat()*1.0 + 0, randomFloat()*0.5 + 0};
         Fern L(x, y, angle, length/(1<<depth), colors);
-        string instructions = L.generate(depth);
-        cout << instructions << endl;
+        L.generate(depth);
         trees[i] = L;
     }
+    double endGenerate = CycleTimer::currentSeconds();
 
-    printf("Create %d trees\n", numberOfTrees);
+    printf("Create %d trees with depth %d in %.3f ms\n", numberOfTrees, depth, 1000.f * (endGenerate - preGenerate));
 
     renderer = new RefRenderer();
 
-    printf("New renderer\n");
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);
     renderer->setup();
 
     glutInit(&argc, argv);
-    printf("glutInit\n");
     startRendererWithDisplay(renderer);
-    printf("Display\n");
 
     return 0;
 }

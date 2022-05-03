@@ -8,6 +8,10 @@
 #include "image.h"
 #include "refRenderer.h"
 #include "util.h"
+#include "omp.h"
+
+// // return a random floating point value between 0 and 1
+static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
 
 RefRenderer::RefRenderer() {
     image = NULL;
@@ -33,6 +37,9 @@ const Image *RefRenderer::getImage() { return image; }
 
 void RefRenderer::setup() {
     // nothing to do here
+    int threads = 1;
+    omp_set_num_threads(threads);
+    printf("Using %d threads\n", threads);
 }
 
 // allocOutputImage --
@@ -50,7 +57,7 @@ void RefRenderer::allocOutputImage(int width, int height) {
 // Clear's the renderer's target image.  The state of the image after
 // the clear depends on the scene being rendered.
 void RefRenderer::clearImage() {
-    image->clear(1.f, 1.f, 1.f, 1.f);
+    image->clear(0.f, 0.f, 0.f, 1.f);
 }
 
 void RefRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
@@ -151,12 +158,13 @@ void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
 
     while (true) {
         // plot(x0, y0);
+        
         float *imgPtr = &image->data[4 * (int(y0) * image->width + int(x0))];
         imgPtr[0] = ls.color[0];
         imgPtr[1] = ls.color[1];
         imgPtr[2] = ls.color[2];
         imgPtr[3] = 1;
-
+        
         if (x0 == x1 && y0 == y1)
             break;
         e2 = 2 * error;
@@ -191,9 +199,9 @@ void RefRenderer::drawTree(LSystem ls) {
             drawLine(x, y, new_x, new_y, ls);
             x = new_x, y = new_y;
         } else if (c == '+') {
-            angle += ls.rotation;
+            angle += ls.rotation*randomFloat();
         } else if (c == '-') {
-            angle -= ls.rotation;
+            angle -= ls.rotation*randomFloat();
         } else if (c == '[') {
             // TODO: save current position and angle
             stack_x.push(x);
@@ -215,43 +223,10 @@ void RefRenderer::drawTree(LSystem ls) {
 
 void RefRenderer::render() {
     // Render all circles
+    #pragma omp parallel for
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
         drawTree(trees[treeIndex]);
-        /**
-        int index3 = 3 * treeIndex;
-
-        float px = position[index3];
-        float py = position[index3 + 1];
-        float pz = position[index3 + 2];
-
-        float colR, colG, colB;
-        colR = color[index3];
-        colG = color[index3 + 1];
-        colB = color[index3 + 2];
-
-
-        // Convert normalized coordinates to integer screen
-        // pixels.  Clamp to the edges of the screen.
-        int pixelX = CLAMP(static_cast<int>(px * image->width), 0, image->width);
-        int pixelY = CLAMP(static_cast<int>(py * image->height), 0, image->height);
-
-        float invWidth = 1.f / image->width;
-        float invHeight = 1.f / image->height;
-
-        // For each pixel in the bounding box, determine the circle's
-        // contribution to the pixel.  The contribution is computed in
-        // the function shadePixel.  Since the circle does not fill
-        // the bounding box entirely, not every pixel in the box will
-        // receive contribution.
-
-        float *imgPtr = &image->data[4 * (pixelY * image->width + pixelX)];
-
-        imgPtr[0] = colR;
-        imgPtr[1] = colG;
-        imgPtr[2] = colB;
-        imgPtr[3] = 1;
-        **/
     }
 
     return;
