@@ -3,7 +3,7 @@
 #include "cycleTimer.h"
 #include "image.h"
 #include "platformgl.h"
-#include "refRenderer.h"
+#include "treeRenderer.h"
 
 void renderPicture();
 
@@ -15,7 +15,7 @@ static struct {
     bool pauseSim;
     double lastFrameTime;
 
-    RefRenderer *renderer;
+    TreeRenderer *renderer;
 
 } gDisplay;
 
@@ -130,7 +130,7 @@ void renderPicture() {
 
 }
 
-void startRendererWithDisplay(RefRenderer *renderer) {
+void startRendererWithDisplay(TreeRenderer *renderer) {
 
     // Setup the display
 

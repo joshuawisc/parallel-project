@@ -6,14 +6,14 @@
 #include <stack>
 
 #include "image.h"
-#include "refRenderer.h"
+#include "ompRenderer.h"
 #include "util.h"
 #include "omp.h"
 
 // // return a random floating point value between 0 and 1
 static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
 
-RefRenderer::RefRenderer() {
+OmpRenderer::OmpRenderer() {
     image = NULL;
 
     numberOfTrees = 0;
@@ -22,7 +22,7 @@ RefRenderer::RefRenderer() {
     trees = NULL;
 }
 
-RefRenderer::~RefRenderer() {
+OmpRenderer::~OmpRenderer() {
     if (image) {
         delete image;
     }
@@ -33,9 +33,9 @@ RefRenderer::~RefRenderer() {
     }
 }
 
-const Image *RefRenderer::getImage() { return image; }
+const Image *OmpRenderer::getImage() { return image; }
 
-void RefRenderer::setup(int threads) {
+void OmpRenderer::setup(int threads) {
     omp_set_num_threads(threads);
     printf("Using %d threads\n", threads);
 }
@@ -44,7 +44,7 @@ void RefRenderer::setup(int threads) {
 //
 // Allocate buffer the renderer will render into.  Check status of
 // image first to avoid memory leak.
-void RefRenderer::allocOutputImage(int width, int height) {
+void OmpRenderer::allocOutputImage(int width, int height) {
     if (image)
         delete image;
     image = new Image(width, height);
@@ -54,11 +54,11 @@ void RefRenderer::allocOutputImage(int width, int height) {
 //
 // Clear's the renderer's target image.  The state of the image after
 // the clear depends on the scene being rendered.
-void RefRenderer::clearImage() {
+void OmpRenderer::clearImage() {
     image->clear(0.f, 0.f, 0.f, 1.f);
 }
 
-void RefRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
+void OmpRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
     this->trees = trees;
     this->numberOfTrees = numberOfTrees;
 }
@@ -67,7 +67,7 @@ void RefRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
 //
 // Advance the simulation one time step.  Updates all circle positions
 // and velocities
-void RefRenderer::advanceAnimation() {
+void OmpRenderer::advanceAnimation() {
     //Currently does NOTHING
 }
 
@@ -98,7 +98,7 @@ static inline void lookupColor(float coord, float &r, float &g, float &b) {
 // given pixel.  All values are provided in normalized space, where
 // the screen spans [0,2]^2.  The color/opacity of the circle is
 // computed at the pixel center.
-void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, float py, float pz, float *pixelData,
+void OmpRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, float py, float pz, float *pixelData,
                              int treeIndex) {
     float diffX = px - pixelCenterX;
     float diffY = py - pixelCenterY;
@@ -141,7 +141,7 @@ void RefRenderer::shadePixel(float pixelCenterX, float pixelCenterY, float px, f
     pixelData[3] += alpha;
 }
 
-void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
+void OmpRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
     // Can't do (1.0)??
     x1 = CLAMP(static_cast<int>(x1 * this->image->width)-1, 0, this->image->width-1);
     y1 = CLAMP(static_cast<int>(y1 * this->image->height)-1, 0, this->image->height-1);
@@ -181,7 +181,7 @@ void RefRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
     }
 }
 
-void RefRenderer::drawTree(LSystem ls) {
+void OmpRenderer::drawTree(LSystem ls) {
 
     // draw loop
     float angle = ls.angle;
@@ -219,7 +219,7 @@ void RefRenderer::drawTree(LSystem ls) {
 
 
 
-void RefRenderer::render() {
+void OmpRenderer::render() {
     // Render all circles
     #pragma omp parallel for
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
