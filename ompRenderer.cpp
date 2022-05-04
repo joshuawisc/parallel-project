@@ -156,13 +156,13 @@ void OmpRenderer::drawLine(float x0, float y0, float x1, float y1, LSystem ls) {
 
     while (true) {
         // plot(x0, y0);
-        
+
         float *imgPtr = &image->data[4 * (int(y0) * image->width + int(x0))];
         imgPtr[0] = ls.color[0];
         imgPtr[1] = ls.color[1];
         imgPtr[2] = ls.color[2];
         imgPtr[3] = 1;
-        
+
         if (x0 == x1 && y0 == y1)
             break;
         e2 = 2 * error;
@@ -225,15 +225,20 @@ void OmpRenderer::render() {
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
         // drawTree(trees[treeIndex]);
-        trees[treeIndex].getLines(trees[treeIndex].depth);
-        for (int i = 0 ; i < trees[treeIndex].numLines(trees[treeIndex].depth) ; i++) {
-            int x0 = trees[treeIndex].lines[4*i];
-            int y0 = trees[treeIndex].lines[4*i+1];
-            int x1 = trees[treeIndex].lines[4*i+2];
-            int y1 = trees[treeIndex].lines[4*i+3];
-            printf("%.3f, %.3f, %.3f, %.3f", x0, y0, x1, y1);
-            break;
-            drawLine(0.1, 0.1, 0.9, 0.9, trees[treeIndex]);
+        printf("generating instructions...\n");
+        LSystem& tree = trees[treeIndex];
+        tree.generate(tree.depth);
+        printf("getting lines...\n");
+        tree.getLines(tree.depth);
+        printf("getting num lines...\n");
+        int numLines = tree.numLines(tree.depth);
+        printf("found num lines...\n");
+        for (int i = 0 ; i < numLines ; i++) {
+            float x0 = tree.lines.at(4*i);
+            float y0 = tree.lines.at(4*i+1);
+            float x1 = tree.lines.at(4*i+2);
+            float y1 = tree.lines.at(4*i+3);
+            drawLine(x0, y0, x1, y1, tree);
         }
     }
     printf("Render complete\n");

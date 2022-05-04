@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     int threads = 8;
     int depth = 5;
     float length = .01;
-    
+
     // Set args
     int opt;
     while((opt = getopt(argc, argv,"t:d:l:n:")) != EOF) {
@@ -62,11 +62,11 @@ int main(int argc, char **argv) {
                 depth = atoi(optarg);
                 break;
             case 'l':
-                length = atoi(optarg);
+                length = atof(optarg);
                 break;
             case 'n':
                 threads = atoi(optarg);
-        } 
+        }
     }
 
     LSystem trees[numberOfTrees];
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         float angle = 3.14/2; // initial angle
         float colors[3] = {randomFloat()*0.f + 1.0f, randomFloat()*1.0f + 0.0f, randomFloat()*0.5f + 0.0f};
         Fern L(x, y, angle, length/(1<<depth), colors, depth);
-        L.generate(depth);
+        L.generate(L.depth);
         L.getLines(L.depth);
         trees[i] = L;
     }
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
     printf("Create %d trees with depth %d, length %.3f in %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
 
-    renderer = new OmpRenderer();
+    renderer = new CudaRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);

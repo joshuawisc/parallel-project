@@ -76,7 +76,7 @@ public:
   vector<float> lines;
 
   LSystem() {
-    
+
   }
 
   // axiom, rules, and rotation determine the L-System
@@ -96,18 +96,18 @@ public:
   }
 
   string generate(int d) {
-    string current = this->axiom;
+    string current = axiom;
     for (int i = 0; i < d; i++) {
-      current = this->update(current);
+      current = update(current);
       // current = this->update_par(current);
     }
 
-    this->instructions = current;
+    instructions = current;
     return current;
   }
   int numLines(int d) {
     int num_lines = 0;
-    for (char c : this->instructions) {
+    for (char c : instructions) {
       if (c == 'F') num_lines++;
     }
     return num_lines;
@@ -115,20 +115,17 @@ public:
 
   // Make sure to call generate() before calling this function
   vector<float> getLines(int d) {
-    int num_lines = this->numLines(d);
-    vector<float> lines(4 * num_lines); // store x, y, new_x, new_y for each line
-    float angle = this->angle;
-    float x = this->x;
-    float y = this->y;
+    int num_lines = numLines(d);
+    lines.resize(4 * num_lines); // store x, y, new_x, new_y for each line
     stack<float> stack_x;
     stack<float> stack_y;
     stack<float> stack_angle;
 
     int l = 0;
-    for (char c : this->instructions) {
+    for (char c : instructions) {
       if (c == 'F') {
-        float new_x = x + this->length * cos(angle);
-        float new_y = y + this->length * sin(angle);
+        float new_x = x + length * cos(angle);
+        float new_y = y + length * sin(angle);
         lines[4 * l] = x;
         lines[4 * l + 1] = y;
         lines[4 * l + 2] = new_x;
@@ -136,9 +133,9 @@ public:
         x = new_x, y = new_y;
         l++;
       } else if (c == '+') {
-        angle += this->rotation;
+        angle += rotation;
       } else if (c == '-') {
-        angle -= this->rotation;
+        angle -= rotation;
       } else if (c == '[') {
         stack_x.push(x);
         stack_y.push(y);
@@ -152,8 +149,14 @@ public:
         stack_angle.pop();
       }
     }
-    this->lines = lines;
+    printLines();
     return lines;
+  }
+
+  void printLines() {
+      for (int i = 0; i < (int)lines.size(); i+=4) {
+          printf("%.3f, %.3f, %.3f, %.3f\n", lines[i], lines[i+1], lines[i+2], lines[i+3]);
+      }
   }
 };
 
@@ -206,7 +209,7 @@ public:
 //   Fern L(x, y, angle, 1.0, colors);
 //   string instructions = L.generate(3);
 //   // cout << instructions << endl;
-  
+
 //   vector<float> lines = L.getLines(3);
 //   for (auto v : lines) {
 //     cout << v << " ";
