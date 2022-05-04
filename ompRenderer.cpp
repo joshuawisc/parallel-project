@@ -224,7 +224,17 @@ void OmpRenderer::render() {
     #pragma omp parallel for
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
-        drawTree(trees[treeIndex]);
+        // drawTree(trees[treeIndex]);
+        trees[treeIndex].getLines(trees[treeIndex].depth);
+        for (int i = 0 ; i < trees[treeIndex].numLines(trees[treeIndex].depth) ; i++) {
+            int x0 = trees[treeIndex].lines[4*i];
+            int y0 = trees[treeIndex].lines[4*i+1];
+            int x1 = trees[treeIndex].lines[4*i+2];
+            int y1 = trees[treeIndex].lines[4*i+3];
+            printf("%.3f, %.3f, %.3f, %.3f", x0, y0, x1, y1);
+            break;
+            drawLine(0.1, 0.1, 0.9, 0.9, trees[treeIndex]);
+        }
     }
     printf("Render complete\n");
 

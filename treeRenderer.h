@@ -1,7 +1,7 @@
 #ifndef __TREE_RENDERER_H__
 #define __TREE_RENDERER_H__
 
-#include "generation_class.cpp"
+#include "lsystem.cpp"
 
 struct Image;
 

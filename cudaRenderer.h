@@ -13,8 +13,10 @@ class CudaRenderer : public TreeRenderer {
     Image *image;
 
     int numberOfTrees;
+    int numberOfLines;
     float *position;
     float *color;
+    LSystem *trees;
 
     float *cudaDevicePosition;
     float *cudaDeviceColor;

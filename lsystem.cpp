@@ -5,6 +5,7 @@
 #include<unordered_map>
 #include<numeric>
 #include<stack>
+#include<math.h>
 
 using namespace std;
 
@@ -70,6 +71,7 @@ public:
   float length;
   float color[3];
   float rotation;
+  int depth;
   string instructions;
   vector<float> lines;
 
@@ -79,7 +81,7 @@ public:
 
   // axiom, rules, and rotation determine the L-System
   // x, y, and angle determine the starting position and angle
-  LSystem(string axiom, unordered_map<char, string> rules, float rotation, float x, float y, float angle, float length, float color[3]) {
+  LSystem(string axiom, unordered_map<char, string> rules, float rotation, float x, float y, float angle, float length, float color[3], int depth) {
     this->axiom = axiom;
     this->rules = rules;
     this->rotation = rotation;
@@ -90,6 +92,7 @@ public:
     this->color[0] = color[0];
     this->color[1] = color[1];
     this->color[2] = color[2];
+    this->depth = depth;
   }
 
   string generate(int d) {
@@ -98,6 +101,7 @@ public:
       current = this->update(current);
       // current = this->update_par(current);
     }
+
     this->instructions = current;
     return current;
   }
@@ -155,7 +159,7 @@ public:
 
 class KochCurve : public LSystem {
 public:
-  KochCurve(float x, float y, float angle, float length, float color[3]) : LSystem(
+  KochCurve(float x, float y, float angle, float length, float color[3], int depth) : LSystem(
     // axiom
     "F",
     // rules
@@ -164,13 +168,13 @@ public:
     },
     // rotation
     90,
-    x, y, angle, length, color
+    x, y, angle, length, color, depth
   ) {}
 };
 
 class Fern : public LSystem {
 public:
-  Fern(float x, float y, float angle, float length, float color[3]) : LSystem(
+  Fern(float x, float y, float angle, float length, float color[3], int depth) : LSystem(
     // axiom
     "X",
     // rules
@@ -180,7 +184,7 @@ public:
     },
     // rotation
     0.436,
-    x, y, angle, length, color
+    x, y, angle, length, color, depth
   ) {}
 
   int numLines(int d) {

@@ -77,16 +77,16 @@ int main(int argc, char **argv) {
         float x = randomFloat(), y = randomFloat(); // initial position
         float angle = 3.14/2; // initial angle
         float colors[3] = {randomFloat()*0.f + 1.0f, randomFloat()*1.0f + 0.0f, randomFloat()*0.5f + 0.0f};
-        Fern L(x, y, angle, length/(1<<depth), colors);
+        Fern L(x, y, angle, length/(1<<depth), colors, depth);
         L.generate(depth);
-        L.getLines();
+        L.getLines(L.depth);
         trees[i] = L;
     }
     double endGenerate = CycleTimer::currentSeconds();
 
     printf("Create %d trees with depth %d, length %.3f in %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
 
-    renderer = new CudaRenderer();
+    renderer = new OmpRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);

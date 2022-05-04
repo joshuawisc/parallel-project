@@ -11,6 +11,7 @@
 
 #include "cudaRenderer.h"
 #include "util.h"
+#include "image.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // All cuda kernels here
@@ -20,6 +21,7 @@
 struct GlobalConstants {
 
     int numberOfTrees;
+    int numberOfLines;
 
     float *position;
     float *color;
@@ -61,6 +63,64 @@ __global__ void kernelClearImage(float r, float g, float b, float a) {
     *(float4 *)(&cuConstRendererParams.imageData[offset]) = value;
 }
 
+__device__ void drawLine(float x0, float y0, float x1, float y1, float r, float g, float b) {
+    // Can't do (1.0)??
+    int width = cuConstRendererParams.imageWidth;
+    int height = cuConstRendererParams.imageHeight;
+    
+    x1 = min(max(static_cast<int>(x1 * width), 0), width-1);
+    y1 = min(max(static_cast<int>(y1 * height), 0), height-1);
+    x0 = min(max(static_cast<int>(x0 * width), 0), width-1);
+    y0 = min(max(static_cast<int>(y0 * height), 0), height-1);
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1; 
+    int dy = -abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1; 
+    int error = dx + dy; 
+    int e2; 
+
+    while (true) {
+        // plot(x0, y0);
+        // TODO: USE FLOAT4 INSTEAD   
+        float *imgPtr = &cuConstRendererParams.imageData[4 * (int(y0) * width + int(x0))];
+        imgPtr[0] = r;
+        imgPtr[1] = g;
+        imgPtr[2] = b;
+        imgPtr[3] = 1;
+    
+        if (x0 == x1 && y0 == y1) 
+            break;
+        e2 = 2 * error;
+        if (e2 >= dy) {
+            if (x0 == x1) 
+                break;
+            error = error + dy; 
+            x0 = x0 + sx; 
+        }
+        if (e2 <= dx) {
+            if (y0 == y1) 
+                break;
+            error = error + dx;
+            y0 = y0 + sy;
+        }
+    }
+}
+
+__global__ void kernelRenderLines() {
+    GlobalConstants params = cuConstRendererParams;
+    int numberOfLines = params.numberOfLines;
+    int numberOfTrees = params.numberOfTrees;
+    int lineIndex = blockIdx.x * blockDim.x + threadIdx.x;
+    int treeIndex = lineIndex / numberOfLines;
+    if (lineIndex > numberOfLines*numberOfTrees)
+        return;
+    lineIndex *= 4;
+    treeIndex *= 3;
+    drawLine(params.position[lineIndex], params.position[lineIndex+1], params.position[lineIndex+2], params.position[lineIndex+3],
+        params.color[treeIndex], params.color[treeIndex+1], params.color[treeIndex+2]);
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,8 +128,10 @@ CudaRenderer::CudaRenderer() {
     image = NULL;
 
     numberOfTrees = 0;
+    numberOfLines = 0;
     position = NULL;
     color = NULL;
+    trees = NULL;
 
     cudaDevicePosition = NULL;
     cudaDeviceColor = NULL;
@@ -110,7 +172,7 @@ void CudaRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
     this->numberOfTrees = numberOfTrees;
 }
 
-void CudaRenderer::setup() {
+void CudaRenderer::setup(int threads) {
     int deviceCount = 0;
     bool isFastGPU = false;
     std::string name;
@@ -124,7 +186,7 @@ void CudaRenderer::setup() {
         cudaDeviceProp deviceProps;
         cudaGetDeviceProperties(&deviceProps, i);
         name = deviceProps.name;
-        if (name.compare("GeForce RTX 2080") == 0) {
+        if (name.compare("NVIDIA GeForce RTX 2080") == 0) {
             isFastGPU = true;
         }
 
@@ -149,13 +211,13 @@ void CudaRenderer::setup() {
     // cudaMalloc and cudaMemcpy
 
     //TODO: Copy lines over correctly
-    int numberOfLines = trees[0].numLines();
+    this->numberOfLines = trees[0].numLines(trees[0].depth);
     cudaMalloc(&cudaDevicePosition, sizeof(float) * 4 * numberOfTrees * numberOfLines);
     cudaMalloc(&cudaDeviceColor, sizeof(float) * 3 * numberOfTrees);
     cudaMalloc(&cudaDeviceImageData, sizeof(float) * 4 * image->width * image->height);
 
     for (int i = 0 ; i < numberOfTrees ; i++) {
-        cudaMemcpy(cudaDevicePosition + sizeof(float)*4*numberOfLines*i, trees[i].lines, sizeof(float) * 4 * numberOfLines, cudaMemcpyHostToDevice);
+        cudaMemcpy(cudaDevicePosition + sizeof(float)*4*numberOfLines*i, &trees[i].lines.front(), sizeof(float) * 4 * numberOfLines, cudaMemcpyHostToDevice);
         cudaMemcpy(cudaDeviceColor + sizeof(float)*3*i, trees[i].color, sizeof(float) * 3, cudaMemcpyHostToDevice);
     }
     // Initialize parameters in constant memory.  We didn't talk about
@@ -168,11 +230,13 @@ void CudaRenderer::setup() {
 
     GlobalConstants params;
     params.numberOfTrees = numberOfTrees;
+    params.numberOfLines = numberOfLines;
     params.imageWidth = image->width;
     params.imageHeight = image->height;
     params.position = cudaDevicePosition;
     params.color = cudaDeviceColor;
     params.imageData = cudaDeviceImageData;
+    params.trees = trees;
 
     cudaMemcpyToSymbol(cuConstRendererParams, &params, sizeof(GlobalConstants));
 
@@ -206,10 +270,11 @@ void CudaRenderer::advanceAnimation() {
 
 void CudaRenderer::render() {
     // 256 threads per block is a healthy number
-    dim3 blockDim(256, 1);
-    dim3 gridDim((numberOfTrees + blockDim.x - 1) / blockDim.x);
+    dim3 blockDim(512, 1);
+    dim3 gridDim((numberOfTrees*numberOfLines + blockDim.x - 1) / blockDim.x);
+    printf("ntrees %d, nlines %d, gridDim %d\n", numberOfTrees, numberOfLines, gridDim.x);
 
     // TODO: Render lines
-    // kernelRenderCircles<<<gridDim, blockDim>>>();
+    kernelRenderLines<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
 }

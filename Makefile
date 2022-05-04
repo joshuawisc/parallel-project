@@ -1,8 +1,8 @@
 EXECUTABLE := render
 LDFLAGS=-L/usr/local/depot/cuda-10.2/lib64/ -lcudart
-# CU_FILES   := cudaRenderer.cu
+CU_FILES   := cudaRenderer.cu
 CU_DEPS    :=
-CC_FILES   := main.cpp display.cpp ompRenderer.cpp generation_class.cpp
+CC_FILES   := main.cpp display.cpp ompRenderer.cpp lsystem.cpp
 LOGS	   := logs
 
 all: $(EXECUTABLE)
@@ -18,7 +18,7 @@ HOSTNAME=$(shell hostname)
 LIBS       :=
 FRAMEWORKS :=
 
-NVCCFLAGS=-O3 -m64 --gpu-architecture compute_61 -ccbin /usr/bin/gcc
+NVCCFLAGS=-O3 -m64 --gpu-architecture compute_61 -ccbin /usr/bin/gcc -std=c++11
 LIBS += GL glut cudart
 
 LDLIBS  := $(addprefix -l, $(LIBS))
@@ -26,7 +26,8 @@ LDFRAMEWORKS := $(addprefix -framework , $(FRAMEWORKS))
 
 NVCC=nvcc
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/display.o $(OBJDIR)/ompRenderer.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/display.o $(OBJDIR)/ompRenderer.o $(OBJDIR)/cudaRenderer.o
+
 
 
 .PHONY: dirs clean
