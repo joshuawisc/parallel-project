@@ -12,6 +12,7 @@
 #include "cudaRenderer.h"
 #include "util.h"
 #include "image.h"
+#include "cycleTimer.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // All cuda kernels here
@@ -112,7 +113,7 @@ __global__ void kernelRenderLines() {
     int numberOfTrees = params.numberOfTrees;
     int lineIndex = blockIdx.x * blockDim.x + threadIdx.x;
     int treeIndex = lineIndex / numberOfLines;
-    if (lineIndex > numberOfLines*numberOfTrees)
+    if (lineIndex >= numberOfLines*numberOfTrees)
         return;
     lineIndex *= 4;
     treeIndex *= 3;
@@ -159,11 +160,14 @@ const Image *CudaRenderer::getImage() {
     // Need to copy contents of the rendered image from device memory
     // before we expose the Image object to the caller
 
-    printf("Copying image data from device\n");
-
+    // printf("Copying image data from device\n");
+    
+    double preSetup = CycleTimer::currentSeconds();
     cudaMemcpy(image->data, cudaDeviceImageData, sizeof(float) * 4 * image->width * image->height,
                cudaMemcpyDeviceToHost);
 
+    double postSetup = CycleTimer::currentSeconds();
+    printf("CUDA getImage time:\t%.3f ms\n", 1000.f * (postSetup - preSetup));
     return image;
 }
 
@@ -173,6 +177,7 @@ void CudaRenderer::loadTrees(LSystem *trees, int numberOfTrees) {
 }
 
 void CudaRenderer::setup(int threads) {
+    double preSetup = CycleTimer::currentSeconds();
     int deviceCount = 0;
     bool isFastGPU = false;
     std::string name;
@@ -217,8 +222,8 @@ void CudaRenderer::setup(int threads) {
     cudaMalloc(&cudaDeviceImageData, sizeof(float) * 4 * image->width * image->height);
 
     for (int i = 0 ; i < numberOfTrees ; i++) {
-        cudaMemcpy(cudaDevicePosition + sizeof(float)*4*numberOfLines*i, &trees[i].lines.front(), sizeof(float) * 4 * numberOfLines, cudaMemcpyHostToDevice);
-        cudaMemcpy(cudaDeviceColor + sizeof(float)*3*i, trees[i].color, sizeof(float) * 3, cudaMemcpyHostToDevice);
+        cudaMemcpy(cudaDevicePosition + 4*numberOfLines*i, &trees[i].lines.front(), sizeof(float) * 4 * numberOfLines, cudaMemcpyHostToDevice);
+        cudaMemcpy(cudaDeviceColor + 3*i, trees[i].color, sizeof(float) * 3, cudaMemcpyHostToDevice);
     }
     // Initialize parameters in constant memory.  We didn't talk about
     // constant memory in class, but the use of read-only constant
@@ -239,6 +244,8 @@ void CudaRenderer::setup(int threads) {
     params.trees = trees;
 
     cudaMemcpyToSymbol(cuConstRendererParams, &params, sizeof(GlobalConstants));
+    double postSetup = CycleTimer::currentSeconds();
+    printf("CUDA setup time:\t%.3f ms\n", 1000.f * (postSetup - preSetup));
 
 }
 
@@ -253,14 +260,16 @@ void CudaRenderer::allocOutputImage(int width, int height) {
 // Clear the renderer's target image.  The state of the image after
 // the clear depends on the scene being rendered.
 void CudaRenderer::clearImage() {
-
+    double preClear = CycleTimer::currentSeconds();
     // 256 threads per block is a healthy number
     dim3 blockDim(16, 16, 1);
     dim3 gridDim((image->width + blockDim.x - 1) / blockDim.x,
                  (image->height + blockDim.y - 1) / blockDim.y);
 
-    kernelClearImage<<<gridDim, blockDim>>>(1.f, 1.f, 1.f, 1.f);
+    kernelClearImage<<<gridDim, blockDim>>>(0.f, 0.f, 0.f, 1.f);
     cudaDeviceSynchronize();
+    double postClear = CycleTimer::currentSeconds();
+    printf("CUDA clear time:\t%.3f ms\n", 1000.f * (postClear - preClear));
 }
 
 // Does nothing
@@ -270,11 +279,13 @@ void CudaRenderer::advanceAnimation() {
 
 void CudaRenderer::render() {
     // 256 threads per block is a healthy number
-    dim3 blockDim(512, 1);
+    dim3 blockDim(1024, 1);
     dim3 gridDim((numberOfTrees*numberOfLines + blockDim.x - 1) / blockDim.x);
-    printf("ntrees %d, nlines %d, gridDim %d\n", numberOfTrees, numberOfLines, gridDim.x);
-
+    
+    double preRender = CycleTimer::currentSeconds();
     // TODO: Render lines
     kernelRenderLines<<<gridDim, blockDim>>>();
     cudaDeviceSynchronize();
+    double postRender = CycleTimer::currentSeconds();
+    printf("CUDA render time:\t%.3f ms\n", 1000.f * (postRender - preRender));
 }

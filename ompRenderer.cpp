@@ -11,7 +11,7 @@
 #include "omp.h"
 
 // // return a random floating point value between 0 and 1
-static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
+static float randomFloat();
 
 OmpRenderer::OmpRenderer() {
     image = NULL;
@@ -225,14 +225,14 @@ void OmpRenderer::render() {
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
         // drawTree(trees[treeIndex]);
-        printf("generating instructions...\n");
+        // printf("generating instructions...\n");
         LSystem& tree = trees[treeIndex];
-        tree.generate(tree.depth);
-        printf("getting lines...\n");
-        tree.getLines(tree.depth);
-        printf("getting num lines...\n");
+        // tree.generate(tree.depth);
+        // printf("getting lines...\n");
+        // tree.getLines(tree.depth);
+        // printf("getting num lines...\n");
         int numLines = tree.numLines(tree.depth);
-        printf("found num lines...\n");
+        // printf("found num lines...\n");
         for (int i = 0 ; i < numLines ; i++) {
             float x0 = tree.lines.at(4*i);
             float y0 = tree.lines.at(4*i+1);

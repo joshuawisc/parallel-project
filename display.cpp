@@ -130,11 +130,17 @@ void renderPicture() {
 
 }
 
-void startRendererWithDisplay(TreeRenderer *renderer) {
+void startRendererWithDisplay(TreeRenderer *renderer, int threads) {
 
     // Setup the display
-
+    double preStart = CycleTimer::currentSeconds();
+    renderer->setup(threads);
+    double postSetup = CycleTimer::currentSeconds();
     const Image *img = renderer->getImage();
+    double postGet = CycleTimer::currentSeconds();
+
+    double setupTime = 1000.f*(postSetup - preStart);
+    double getTime = 1000.f * (postGet - postSetup);
 
     gDisplay.renderer = renderer;
     gDisplay.updateSim = true;
@@ -151,9 +157,16 @@ void startRendererWithDisplay(TreeRenderer *renderer) {
     glutCreateWindow("CMU 15-618 Parallel Project Trees");
     glutDisplayFunc(handleDisplay);
     glutKeyboardFunc(handleKeyPress);
-    double preRenderTime = CycleTimer::currentSeconds();
+    double preTime = CycleTimer::currentSeconds();
     gDisplay.renderer->clearImage();
+    double postClear = CycleTimer::currentSeconds();
     gDisplay.renderer->render();
-    printf("Render:   %.3f ms\n", 1000.f * (CycleTimer::currentSeconds() - preRenderTime));
+    double postRender = CycleTimer::currentSeconds();
+    double clearTime = 1000.f*(postClear - preTime);
+    double renderTime = 1000.f*(postRender - postClear);
+    double totalTime = 1000.f * (postGet - preStart + postRender - preTime);
+    printf("---------------------DISPLAY TIMES--------------------\n");
+    printf("First setup:\t%.3fms\nFirst get:\t%.3f ms\nFirst clear:\t%.3f ms\nFirst render:\t%.3f ms\nTotal:\t\t%.3f ms\n", setupTime, getTime, clearTime, renderTime, totalTime);
+    printf("-----------------------------------------------------\n");
     glutMainLoop();
 }

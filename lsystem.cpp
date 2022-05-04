@@ -9,6 +9,10 @@
 
 using namespace std;
 
+// // return a random floating point value between 0 and 1
+static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
+
+
 class LSystem {
 private:
   string axiom;
@@ -133,9 +137,9 @@ public:
         x = new_x, y = new_y;
         l++;
       } else if (c == '+') {
-        angle += rotation;
+        angle += rotation*randomFloat();
       } else if (c == '-') {
-        angle -= rotation;
+        angle -= rotation*randomFloat();
       } else if (c == '[') {
         stack_x.push(x);
         stack_y.push(y);

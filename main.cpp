@@ -8,13 +8,9 @@
 #include "cudaRenderer.h"
 #include "cycleTimer.h"
 
-// randomFloat --
-// //
-// // return a random floating point value between 0 and 1
-static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
 
 
-void startRendererWithDisplay(TreeRenderer *renderer);
+void startRendererWithDisplay(TreeRenderer *renderer, int threads);
 /*
 void startBenchmark(OmpRenderer *renderer, int startFrame, int totalFrames,
                     const std::string &frameFilename);
@@ -90,10 +86,10 @@ int main(int argc, char **argv) {
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);
-    renderer->setup(threads);
+    // renderer->setup(threads);
 
     glutInit(&argc, argv);
-    startRendererWithDisplay(renderer);
+    startRendererWithDisplay(renderer, threads);
 
     return 0;
 }
