@@ -167,7 +167,7 @@ const Image *CudaRenderer::getImage() {
                cudaMemcpyDeviceToHost);
 
     double postSetup = CycleTimer::currentSeconds();
-    printf("CUDA getImage time:\t%.3f ms\n", 1000.f * (postSetup - preSetup));
+    // printf("CUDA getImage time:\t%.3f ms\n", 1000.f * (postSetup - preSetup));
     return image;
 }
 

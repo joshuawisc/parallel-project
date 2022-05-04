@@ -225,6 +225,7 @@ void OmpRenderer::render() {
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
 
         // drawTree(trees[treeIndex]);
+        
         // printf("generating instructions...\n");
         LSystem& tree = trees[treeIndex];
         // tree.generate(tree.depth);
@@ -240,6 +241,7 @@ void OmpRenderer::render() {
             float y1 = tree.lines.at(4*i+3);
             drawLine(x0, y0, x1, y1, tree);
         }
+        
     }
     printf("Render complete\n");
 

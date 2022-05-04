@@ -7,7 +7,7 @@
 #include "ompRenderer.h"
 #include "cudaRenderer.h"
 #include "cycleTimer.h"
-
+#include "omp.h"
 
 
 void startRendererWithDisplay(TreeRenderer *renderer, int threads);
@@ -46,10 +46,11 @@ int main(int argc, char **argv) {
     int threads = 8;
     int depth = 5;
     float length = .01;
+    bool useOmp = false;
 
     // Set args
     int opt;
-    while((opt = getopt(argc, argv,"t:d:l:n:")) != EOF) {
+    while((opt = getopt(argc, argv,"t:d:l:n:o")) != EOF) {
         switch(opt) {
             case 't':
                 numberOfTrees = atoi(optarg);
@@ -62,12 +63,18 @@ int main(int argc, char **argv) {
                 break;
             case 'n':
                 threads = atoi(optarg);
+                break;
+            case 'o':
+                useOmp = true;
         }
     }
 
     LSystem trees[numberOfTrees];
 
     double preGenerate = CycleTimer::currentSeconds();
+
+    omp_set_num_threads(threads);
+    // #pragma omp parallel for schedule(static, numberOfTrees/threads)
     for (int i = 0; i < numberOfTrees ; i++) {
 
         float x = randomFloat(), y = randomFloat(); // initial position
@@ -80,9 +87,12 @@ int main(int argc, char **argv) {
     }
     double endGenerate = CycleTimer::currentSeconds();
 
-    printf("Create %d trees with depth %d, length %.3f in %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
+    printf("trees: %d, depth: %d, length: %.3f, time: %.3f ms\n", numberOfTrees, depth, length, 1000.f * (endGenerate - preGenerate));
 
-    renderer = new CudaRenderer();
+    if (useOmp)
+        renderer = new OmpRenderer();
+    else
+        renderer = new CudaRenderer();
 
     renderer->allocOutputImage(imageSize, imageSize);
     renderer->loadTrees(trees, numberOfTrees);

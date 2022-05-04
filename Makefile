@@ -12,7 +12,7 @@ all: $(EXECUTABLE)
 ARCH=$(shell uname | sed -e 's/-.*//g')
 OBJDIR=objs
 CXX=g++ -m64
-CXXFLAGS=-O0 -Wall -g -std=c++11 -fopenmp
+CXXFLAGS=-O3 -Wall -g -std=c++11 -fopenmp
 HOSTNAME=$(shell hostname)
 
 LIBS       :=
