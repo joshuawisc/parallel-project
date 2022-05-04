@@ -40,7 +40,7 @@ private:
     // TODO: get prefix sum of output lengths
     vector<int> output_sums(input.size());
     // inclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin());
-    // TODO: ESCLUSIVE SCAN
+    // TODO: EXCLUSIVE SCAN
     // std::exclusive_scan(output_sizes.begin(), output_sizes.end(), output_sums.begin(), 0);
 
     // TODO: for each character, write new string into output
@@ -70,6 +70,7 @@ public:
   float color[3];
   float rotation;
   string instructions;
+  vector<float> lines;
 
   LSystem() {
     
@@ -98,6 +99,56 @@ public:
     }
     this->instructions = current;
     return current;
+  }
+  int numLines(int d) {
+    int num_lines = 0;
+    for (char c : this->instructions) {
+      if (c == 'F') num_lines++;
+    }
+    return num_lines;
+  }
+
+  // Make sure to call generate() before calling this function
+  vector<float> getLines(int d) {
+    int num_lines = this->numLines(d);
+    vector<float> lines(4 * num_lines); // store x, y, new_x, new_y for each line
+    float angle = this->angle;
+    float x = this->x;
+    float y = this->y;
+    stack<float> stack_x;
+    stack<float> stack_y;
+    stack<float> stack_angle;
+
+    int l = 0;
+    for (char c : this->instructions) {
+      if (c == 'F') {
+        float new_x = x + this->length * cos(angle);
+        float new_y = y + this->length * sin(angle);
+        lines[4 * l] = x;
+        lines[4 * l + 1] = y;
+        lines[4 * l + 2] = new_x;
+        lines[4 * l + 3] = new_y;
+        x = new_x, y = new_y;
+        l++;
+      } else if (c == '+') {
+        angle += this->rotation;
+      } else if (c == '-') {
+        angle -= this->rotation;
+      } else if (c == '[') {
+        stack_x.push(x);
+        stack_y.push(y);
+        stack_angle.push(angle);
+      } else if (c == ']') {
+        x = stack_x.top();
+        y = stack_y.top();
+        angle = stack_angle.top();
+        stack_x.pop();
+        stack_y.pop();
+        stack_angle.pop();
+      }
+    }
+    this->lines = lines;
+    return lines;
   }
 };
 
@@ -130,6 +181,12 @@ public:
     0.436,
     x, y, angle, length, color
   ) {}
+
+  int numLines(int d) {
+    // we can compute the number of lines for the fern more efficiently using a recurrence
+    // F[n] = 3 * 2^(n-1)[2^n - 1]
+    return 3 * (1 << (d - 1)) * ((1 << d) - 1);
+  }
 };
 
 /**
