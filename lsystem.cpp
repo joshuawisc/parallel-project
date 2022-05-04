@@ -149,7 +149,7 @@ public:
         stack_angle.pop();
       }
     }
-    printLines();
+    //printLines();
     return lines;
   }
 

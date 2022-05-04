@@ -67,38 +67,38 @@ __device__ void drawLine(float x0, float y0, float x1, float y1, float r, float 
     // Can't do (1.0)??
     int width = cuConstRendererParams.imageWidth;
     int height = cuConstRendererParams.imageHeight;
-    
+
     x1 = min(max(static_cast<int>(x1 * width), 0), width-1);
     y1 = min(max(static_cast<int>(y1 * height), 0), height-1);
     x0 = min(max(static_cast<int>(x0 * width), 0), width-1);
     y0 = min(max(static_cast<int>(y0 * height), 0), height-1);
     int dx = abs(x1 - x0);
-    int sx = x0 < x1 ? 1 : -1; 
+    int sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0);
-    int sy = y0 < y1 ? 1 : -1; 
-    int error = dx + dy; 
-    int e2; 
+    int sy = y0 < y1 ? 1 : -1;
+    int error = dx + dy;
+    int e2;
 
     while (true) {
         // plot(x0, y0);
-        // TODO: USE FLOAT4 INSTEAD   
+        // TODO: USE FLOAT4 INSTEAD
         float *imgPtr = &cuConstRendererParams.imageData[4 * (int(y0) * width + int(x0))];
         imgPtr[0] = r;
         imgPtr[1] = g;
         imgPtr[2] = b;
         imgPtr[3] = 1;
-    
-        if (x0 == x1 && y0 == y1) 
+
+        if (x0 == x1 && y0 == y1)
             break;
         e2 = 2 * error;
         if (e2 >= dy) {
-            if (x0 == x1) 
+            if (x0 == x1)
                 break;
-            error = error + dy; 
-            x0 = x0 + sx; 
+            error = error + dy;
+            x0 = x0 + sx;
         }
         if (e2 <= dx) {
-            if (y0 == y1) 
+            if (y0 == y1)
                 break;
             error = error + dx;
             y0 = y0 + sy;
