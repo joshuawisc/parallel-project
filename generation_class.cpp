@@ -30,7 +30,7 @@ private:
   string update_par(string input) {
     // TODO: compute new length of each char
     vector<int> output_sizes(input.size());
-    for (int i = 0; i < input.size(); i++) {
+    for (unsigned int i = 0; i < input.size(); i++) {
       if (rules.find(input[i]) != rules.end()) {
         output_sizes[i] = rules[input[i]].size();
       } else {
@@ -47,10 +47,10 @@ private:
     // TODO: for each character, write new string into output
     int output_size = output_sums.back() + output_sizes.back();
     vector<int> output(output_size);
-    for (int i = 0; i < input.size(); i++) {
+    for (unsigned int i = 0; i < input.size(); i++) {
       if (rules.find(input[i]) != rules.end()) {
         // if the character in rules, copy the new string into output
-        for (int j = 0; j < rules[input[i]].size(); j++) {
+        for (unsigned int j = 0; j < rules[input[i]].size(); j++) {
           output[output_sums[i] + j] = rules[input[i]][j];
         }
       } else {
