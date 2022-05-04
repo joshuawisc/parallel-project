@@ -4,6 +4,7 @@
 #include<string>
 #include<unordered_map>
 #include<numeric>
+#include<stack>
 
 using namespace std;
 
@@ -189,35 +190,30 @@ public:
   }
 };
 
-/**
-int main() {
-  // draw
-  float rotation = 80;
-  float line_length = 10;
 
-  float x = 0, y = 0; // initial position
-  float angle = 0; // initial angle
-  float colors[3] = {1.0, 1.0, 1.0};
-  KochCurve L(x, y, angle, 1.0, colors);
-  string instructions = L.generate(3);
-  cout << instructions << endl;
+// int main() {
+//   // draw
+//   float rotation = 80;
+//   float line_length = 10;
+
+//   float x = 0, y = 0; // initial position
+//   float angle = 0; // initial angle
+//   float colors[3] = {1.0, 1.0, 1.0};
+//   Fern L(x, y, angle, 1.0, colors);
+//   string instructions = L.generate(3);
+//   // cout << instructions << endl;
   
-  // draw loop
-  for (char c : instructions) {
-    if (c == 'F') {
-      float new_x = line_length * cos(angle);
-      float new_y = line_length * sin(angle);
-      // TODO: draw line from (x, y) to (new_x, new_y)
-      x = new_x, y = new_y;
-    } else if (c == '+') {
-      angle += rotation;
-    } else if (c == '-') {
-      angle -= rotation;
-    } else if (c == '[') {
-      // TODO: save current position and angle
-    } else if (c == ']') {
-      // TODO: restore current position and angle
-    }
-  }
-}
-**/
+//   vector<float> lines = L.getLines(3);
+//   for (auto v : lines) {
+//     cout << v << " ";
+//   }
+//   cout << endl;
+
+//   L.generate(1);
+//   cout << L.numLines(1) << endl;
+//   L.generate(2);
+//   cout << L.numLines(2) << endl;
+//   L.generate(3);
+//   cout << L.numLines(3) << endl;
+
+// }
