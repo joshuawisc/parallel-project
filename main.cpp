@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     double preGenerate = CycleTimer::currentSeconds();
 
     omp_set_num_threads(threads);
-    // #pragma omp parallel for schedule(static, numberOfTrees/threads)
+    #pragma omp parallel for schedule(static, numberOfTrees/threads)
     for (int i = 0; i < numberOfTrees ; i++) {
 
         float x = randomFloat(), y = randomFloat(); // initial position

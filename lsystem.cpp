@@ -6,12 +6,22 @@
 #include<numeric>
 #include<stack>
 #include<math.h>
+#include<random>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 // // return a random floating point value between 0 and 1
 static float randomFloat() { return static_cast<float>(rand()) / RAND_MAX; }
 
+static float random2() {
+    static thread_local std::mt19937 generator;
+    std::uniform_int_distribution<int> distribution(0, INT_MAX);
+    return float(distribution(generator))/INT_MAX;
+}
+
+// // return a random floating point value between 0 and 1
+static float randomFloatR(unsigned int *seedp) { return static_cast<float>(rand_r(seedp)) / RAND_MAX; }
 
 class LSystem {
 private:
@@ -125,6 +135,8 @@ public:
     stack<float> stack_y;
     stack<float> stack_angle;
 
+    unsigned int s = 618;
+
     int l = 0;
     for (char c : instructions) {
       if (c == 'F') {
@@ -137,9 +149,9 @@ public:
         x = new_x, y = new_y;
         l++;
       } else if (c == '+') {
-        angle += rotation*randomFloat();
+        angle += rotation*random2();
       } else if (c == '-') {
-        angle -= rotation*randomFloat();
+        angle -= rotation*random2();
       } else if (c == '[') {
         stack_x.push(x);
         stack_y.push(y);
