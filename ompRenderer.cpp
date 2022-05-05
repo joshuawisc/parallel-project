@@ -223,14 +223,14 @@ void OmpRenderer::render() {
     // Render all circles
     #pragma omp parallel for
     for (int treeIndex = 0; treeIndex < numberOfTrees; treeIndex++) {
-
+        // trees[treeIndex].generate(trees[treeIndex].depth);
         // drawTree(trees[treeIndex]);
-        
+
         // printf("generating instructions...\n");
         LSystem& tree = trees[treeIndex];
-        // tree.generate(tree.depth);
+        tree.generate(tree.depth);
         // printf("getting lines...\n");
-        // tree.getLines(tree.depth);
+        tree.getLines(tree.depth);
         // printf("getting num lines...\n");
         int numLines = tree.numLines(tree.depth);
         // printf("found num lines...\n");
@@ -241,7 +241,6 @@ void OmpRenderer::render() {
             float y1 = tree.lines.at(4*i+3);
             drawLine(x0, y0, x1, y1, tree);
         }
-        
     }
     printf("Render complete\n");
 

@@ -81,8 +81,8 @@ int main(int argc, char **argv) {
         float angle = 3.14/2; // initial angle
         float colors[3] = {randomFloat()*0.f + 1.0f, randomFloat()*1.0f + 0.0f, randomFloat()*0.5f + 0.0f};
         Fern L(x, y, angle, length/(1<<depth), colors, depth);
-        L.generate(L.depth);
-        L.getLines(L.depth);
+        //L.generate(L.depth);
+        //L.getLines(L.depth);
         trees[i] = L;
     }
     double endGenerate = CycleTimer::currentSeconds();
