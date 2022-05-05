@@ -130,7 +130,7 @@ public:
   // Make sure to call generate() before calling this function
   vector<float> getLines(int d) {
     int num_lines = numLines(d);
-    lines.resize(4 * num_lines); // store x, y, new_x, new_y for each line
+    lines.reserve(4 * num_lines); // store x, y, new_x, new_y for each line
     stack<float> stack_x;
     stack<float> stack_y;
     stack<float> stack_angle;
